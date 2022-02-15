@@ -81,14 +81,7 @@ namespace Unity.Simulation
                         return data;
 #if UNITY_2019_3_OR_NEWER
                     case ImageFormat.Png:
-#if USIM_USE_BUILTIN_PNG_ENCODER
                         return ImageConversion.EncodeArrayToPNG(data, format, (uint)width, (uint)height, 0);
-#else
-                        int bitDepth = 8;
-                        PngEncoder.ColorType colorType = PngEncoder.GetTypeAndDepth(GraphicsUtilities.GetBlockSize(format), GraphicsUtilities.GetComponentCount(format), ref bitDepth);
-                        // Unity image rows start at the bottom left. The new .png library encodes the top row first. This flips it, but allows the override.
-                        return PngEncoder.Encode(ArrayUtilities.Cast<byte>(data), width, height, colorType, bitDepth, additionalParam == 0 ? PngEncoder.PngParam.FlipY : PngEncoder.PngParam.None);
-#endif
                     case ImageFormat.Exr:
                         return ImageConversion.EncodeArrayToEXR(data, format, (uint)width, (uint)height, 0, /*EXRFlags*/(Texture2D.EXRFlags)additionalParam);
                     case ImageFormat.Tga:
@@ -97,8 +90,6 @@ namespace Unity.Simulation
                     case ImageFormat.Jpg:
 #if USIM_USE_BUILTIN_JPG_ENCODER && UNITY_2019_3_OR_NEWER
                         return ImageConversion.EncodeArrayToJPG(data, format, (uint)width, (uint)height, 0, /*quality*/additionalParam > 0 ? (int)additionalParam : 75);
-#else
-                        return JpegEncoder.Encode(ArrayUtilities.Cast<byte>(data), width, height, GraphicsUtilities.GetBlockSize(format), format, /*quality*/additionalParam > 0 ? (int)additionalParam : 75);
 #endif
                     default:
                         throw new NotSupportedException("ImageFormat is not supported");
